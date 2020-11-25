@@ -24,6 +24,7 @@ const HomeScreen = (props) => {
   const [posts, setPosts] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [post, setPost] = useState("");
 
   const loadPosts = async () => {
     setLoading(true);
@@ -79,9 +80,17 @@ const HomeScreen = (props) => {
             <Card>
               <Input
                 placeholder="What's On Your Mind?"
-                leftIcon={<Entypo name="pencil" size={24} color="black" />}
+                onChangeText={function (currentText) {
+                  setPost(currentText);
+                }}
               />
-              <Button title="Post" type="outline" onPress={function () {}} />
+              <Button
+                title="Post"
+                type="outline"
+                onPress={function () {
+                  alert(post);
+                }}
+              />
             </Card>
 
             <FlatList
