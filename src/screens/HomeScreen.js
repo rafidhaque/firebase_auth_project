@@ -19,12 +19,19 @@ import { AntDesign, Entypo } from "@expo/vector-icons";
 import { AuthContext } from "../providers/AuthProvider";
 import { getPosts } from "./../requests/Posts";
 import { getUsers } from "./../requests/Users";
+import {
+  getDataJSON,
+  storeDataJSON,
+} from "./../functions/AsyncStorageFunctions";
 
 const HomeScreen = (props) => {
   const [posts, setPosts] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [post, setPost] = useState("");
+  const [title, setTitle] = useState("");
+
+  // currentUser = getDataJSON(Email);
 
   const loadPosts = async () => {
     setLoading(true);
@@ -41,6 +48,7 @@ const HomeScreen = (props) => {
     }
     setLoading(false);
   };
+
   const getName = (id) => {
     let Name = "";
     users.forEach((element) => {
@@ -79,6 +87,12 @@ const HomeScreen = (props) => {
             />
             <Card>
               <Input
+                placeholder="Title"
+                onChangeText={function (currentText) {
+                  setTitle(currentText);
+                }}
+              />
+              <Input
                 placeholder="What's On Your Mind?"
                 onChangeText={function (currentText) {
                   setPost(currentText);
@@ -89,6 +103,12 @@ const HomeScreen = (props) => {
                 type="outline"
                 onPress={function () {
                   alert(post);
+                  post_details = {
+                    title: title,
+                    author: auth.CurrentUser.name,
+                    post: post,
+                  };
+                  storeDataJSON(title, post_details);
                 }}
               />
             </Card>
