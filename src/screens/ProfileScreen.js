@@ -1,8 +1,32 @@
-import React, { useState } from "react";
-import { View, StyleSheet, AsyncStorage } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, AsyncStorage, FlatList } from "react-native";
 import { Text, Card, Button, Avatar, Header } from "react-native-elements";
 import { AuthContext } from "../providers/AuthProvider";
+import PostCard from "./../components/PostCard";
 const ProfileScreen = (props) => {
+  const [posts_list, setPosts_list] = useState([]);
+
+  const getData = async (key) => {
+    var value, collect;
+    try {
+      value = await AsyncStorage.getItem(key).then((values) => {
+        collect = values;
+      });
+    } catch (error) {
+      console.log("Error: ", error);
+    }
+    return collect;
+  };
+
+  useEffect(() => {
+    getData("posts_list").then((filter) => {
+      if (filter != null) {
+        filter = JSON.parse(filter);
+        setPosts_list(filter);
+      } else console.log("error");
+    });
+  }, []);
+
   return (
     <AuthContext.Consumer>
       {(auth) => (
@@ -31,7 +55,7 @@ const ProfileScreen = (props) => {
           <Card>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Text style={{ paddingHorizontal: 10 }}>
-                Name: {auth.CurrentUser.name}
+                Name: {auth.CurrentUser.name} Contact: {auth.CurrentUser.email}
               </Text>
             </View>
           </Card>
@@ -39,10 +63,26 @@ const ProfileScreen = (props) => {
           <Card>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Text style={{ paddingHorizontal: 10 }}>
-                Contact: {auth.CurrentUser.email}
+                {auth.CurrentUser.name}'s Blog Posts:
               </Text>
             </View>
           </Card>
+
+          <FlatList
+            data={posts_list.reverse()}
+            renderItem={function ({ item }) {
+              if (item.author == auth.CurrentUser.name) {
+                return (
+                  <PostCard
+                    author={item.headline}
+                    title={item.author}
+                    body={item.post}
+                    likes={item.likes}
+                  />
+                );
+              }
+            }}
+          />
         </View>
       )}
     </AuthContext.Consumer>

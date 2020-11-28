@@ -15,7 +15,7 @@ const NotificationScreen = (props) => {
                 props.navigation.toggleDrawer();
               },
             }}
-            centerComponent={{ text: "The Office", style: { color: "#fff" } }}
+            centerComponent={{ text: "Our Blog", style: { color: "#fff" } }}
             rightComponent={{
               icon: "lock-outline",
               color: "#fff",
@@ -37,9 +37,6 @@ const NotificationScreen = (props) => {
                 }}
                 activeOpacity={1}
               />
-              <Text style={{ paddingHorizontal: 10 }}>
-                Pam Beesley Liked Your Post.
-              </Text>
             </View>
           </Card>
         </View>
