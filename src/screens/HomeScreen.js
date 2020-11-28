@@ -124,6 +124,7 @@ const HomeScreen = (props) => {
                     author={item.headline}
                     title={item.author}
                     body={item.post}
+                    likes={item.likes}
                   />
                 );
               }}

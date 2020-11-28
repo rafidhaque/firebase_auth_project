@@ -15,7 +15,10 @@ const ProfileScreen = (props) => {
                 props.navigation.toggleDrawer();
               },
             }}
-            centerComponent={{ text: "The Office", style: { color: "#fff" } }}
+            centerComponent={{
+              text: auth.CurrentUser.name + "'s Profile Page",
+              style: { color: "#fff" },
+            }}
             rightComponent={{
               icon: "lock-outline",
               color: "#fff",
@@ -27,18 +30,16 @@ const ProfileScreen = (props) => {
           />
           <Card>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Avatar
-                containerStyle={{ backgroundColor: "cyan" }}
-                rounded
-                icon={{
-                  name: "thumbs-o-up",
-                  type: "font-awesome",
-                  color: "black",
-                }}
-                activeOpacity={1}
-              />
               <Text style={{ paddingHorizontal: 10 }}>
-                {auth.CurrentUser.name} Liked Your Post.
+                Name: {auth.CurrentUser.name}
+              </Text>
+            </View>
+          </Card>
+
+          <Card>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={{ paddingHorizontal: 10 }}>
+                Contact: {auth.CurrentUser.email}
               </Text>
             </View>
           </Card>

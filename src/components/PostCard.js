@@ -4,6 +4,7 @@ import { Card, Button, Text, Avatar } from "react-native-elements";
 import { AntDesign } from "@expo/vector-icons";
 
 const PostCard = (props) => {
+  let likes = "  Like (" + props.likes + ") ";
   return (
     <Card>
       <View
@@ -34,10 +35,9 @@ const PostCard = (props) => {
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <Button
           type="outline"
-          title="  Like (17)"
+          title={likes}
           icon={<AntDesign name="like2" size={24} color="dodgerblue" />}
         />
-        <Button type="solid" title="Comment (10)" />
       </View>
     </Card>
   );
