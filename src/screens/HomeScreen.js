@@ -21,7 +21,7 @@ import { storeData } from "./../functions/AsyncStorageFunctions";
 import { AsyncStorage } from "react-native";
 
 const HomeScreen = (props) => {
-  let posts_list = [];
+  const [posts_list, setPosts_list] = useState([]);
   const [loading, setLoading] = useState(false);
   const [post, setPost] = useState("");
   const [headline, setHeadline] = useState("");
@@ -31,30 +31,35 @@ const HomeScreen = (props) => {
     try {
       value = await AsyncStorage.getItem(key).then((values) => {
         collect = values;
-        console.log("Then: ", values);
+        // console.log("Then: ", values);
       });
     } catch (error) {
       console.log("Error: ", error);
     }
-    console.log("Final: ", value);
+    // console.log("Final: ", value);
     return collect;
   };
 
-  function loadposts_list() {
-    getData("posts_list").then((filter) => {
+  async function loadposts_list(posts_list) {
+    await getData("posts_list").then((filter) => {
       if (filter != null) {
-        console.log("returned filter:", filter);
-        console.log(typeof filter);
+        // console.log("returned filter:", filter);
+        // console.log(typeof filter);
         filter = JSON.parse(filter);
-        console.log(filter);
-        console.log(typeof filter);
-        return filter;
+        // console.log(filter);
+        // console.log(typeof filter);
+        posts_list = filter;
       } else console.log("error");
     });
   }
 
   useEffect(() => {
-    posts_list = loadposts_list();
+    getData("posts_list").then((filter) => {
+      if (filter != null) {
+        filter = JSON.parse(filter);
+        setPosts_list(filter);
+      } else console.log("error");
+    });
   }, []);
 
   if (!loading) {
