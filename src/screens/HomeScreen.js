@@ -117,7 +117,7 @@ const HomeScreen = (props) => {
               />
             </Card>
             <FlatList
-              data={posts_list}
+              data={posts_list.reverse()}
               renderItem={function ({ item }) {
                 return (
                   <PostCard
