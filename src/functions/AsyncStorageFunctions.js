@@ -26,6 +26,7 @@ const getData = async (key) => {
       return data;
     } else {
       alert("No data with this key!");
+      return 0;
     }
   } catch (error) {
     alert(error);

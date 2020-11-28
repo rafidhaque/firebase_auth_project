@@ -17,49 +17,44 @@ import {
 import PostCard from "./../components/PostCard";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { AuthContext } from "../providers/AuthProvider";
-import { getPosts } from "./../requests/Posts";
-import { getUsers } from "./../requests/Users";
-import {
-  getDataJSON,
-  storeDataJSON,
-} from "./../functions/AsyncStorageFunctions";
+import { storeData } from "./../functions/AsyncStorageFunctions";
+import { AsyncStorage } from "react-native";
 
 const HomeScreen = (props) => {
-  const [posts, setPosts] = useState([]);
-  const [users, setUsers] = useState([]);
+  let posts_list = [];
   const [loading, setLoading] = useState(false);
   const [post, setPost] = useState("");
-  const [title, setTitle] = useState("");
+  const [headline, setHeadline] = useState("");
 
-  // currentUser = getDataJSON(Email);
-
-  const loadPosts = async () => {
-    setLoading(true);
-    const response = await getPosts();
-    if (response.ok) {
-      setPosts(response.data);
+  const getData = async (key) => {
+    var value, collect;
+    try {
+      value = await AsyncStorage.getItem(key).then((values) => {
+        collect = values;
+        console.log("Then: ", values);
+      });
+    } catch (error) {
+      console.log("Error: ", error);
     }
+    console.log("Final: ", value);
+    return collect;
   };
 
-  const loadUsers = async () => {
-    const response = await getUsers();
-    if (response.ok) {
-      setUsers(response.data);
-    }
-    setLoading(false);
-  };
-
-  const getName = (id) => {
-    let Name = "";
-    users.forEach((element) => {
-      if (element.id == id) Name = element.name;
+  function loadposts_list() {
+    getData("posts_list").then((filter) => {
+      if (filter != null) {
+        console.log("returned filter:", filter);
+        console.log(typeof filter);
+        filter = JSON.parse(filter);
+        console.log(filter);
+        console.log(typeof filter);
+        return filter;
+      } else console.log("error");
     });
-    return Name;
-  };
+  }
 
   useEffect(() => {
-    loadPosts();
-    loadUsers();
+    posts_list = loadposts_list();
   }, []);
 
   if (!loading) {
@@ -87,9 +82,9 @@ const HomeScreen = (props) => {
             />
             <Card>
               <Input
-                placeholder="Title"
+                placeholder="Headline"
                 onChangeText={function (currentText) {
-                  setTitle(currentText);
+                  setHeadline(currentText);
                 }}
               />
               <Input
@@ -103,24 +98,29 @@ const HomeScreen = (props) => {
                 type="outline"
                 onPress={function () {
                   alert(post);
-                  post_details = {
-                    title: title,
+                  let post_details = {
+                    headline: headline,
                     author: auth.CurrentUser.name,
                     post: post,
+                    likes: 0,
                   };
-                  storeDataJSON(title, post_details);
+                  posts_list.push(post_details);
+                  alert(posts_list);
+                  posts_list = JSON.stringify(posts_list);
+                  alert(posts_list);
+                  storeData("posts_list", posts_list);
+                  props.navigation.navigate("Home");
                 }}
               />
             </Card>
-
             <FlatList
-              data={posts}
+              data={posts_list}
               renderItem={function ({ item }) {
                 return (
                   <PostCard
-                    author={getName(item.userId)}
-                    title={item.title}
-                    body={item.body}
+                    author={item.author}
+                    title={item.headline}
+                    body={item.post}
                   />
                 );
               }}
