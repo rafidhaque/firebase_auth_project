@@ -102,18 +102,16 @@ const HomeScreen = (props) => {
                 title="Post"
                 type="outline"
                 onPress={function () {
-                  alert(post);
                   let post_details = {
                     headline: headline,
                     author: auth.CurrentUser.name,
                     post: post,
                     likes: 0,
                   };
-                  posts_list.push(post_details);
-                  alert(posts_list);
-                  posts_list = JSON.stringify(posts_list);
-                  alert(posts_list);
-                  storeData("posts_list", posts_list);
+                  let temp_list = posts_list;
+                  temp_list.push(post_details);
+                  temp_list = JSON.stringify(temp_list);
+                  storeData("posts_list", temp_list);
                   props.navigation.navigate("Home");
                 }}
               />
@@ -123,8 +121,8 @@ const HomeScreen = (props) => {
               renderItem={function ({ item }) {
                 return (
                   <PostCard
-                    author={item.author}
-                    title={item.headline}
+                    author={item.headline}
+                    title={item.author}
                     body={item.post}
                   />
                 );

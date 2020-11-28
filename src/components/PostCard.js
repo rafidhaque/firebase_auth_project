@@ -22,7 +22,7 @@ const PostCard = (props) => {
           {props.author}
         </Text>
       </View>
-      <Text style={{ fontStyle: "italic" }}> {props.title}</Text>
+      <Text style={{ fontStyle: "italic" }}>Written by: {props.title}</Text>
       <Text
         style={{
           paddingVertical: 10,
