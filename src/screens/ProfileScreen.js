@@ -3,6 +3,8 @@ import { View, StyleSheet, AsyncStorage, FlatList } from "react-native";
 import { Text, Card, Button, Avatar, Header } from "react-native-elements";
 import { AuthContext } from "../providers/AuthProvider";
 import PostCard from "./../components/PostCard";
+import * as firebase from "firebase";
+
 const ProfileScreen = (props) => {
   const [posts_list, setPosts_list] = useState([]);
 
@@ -47,8 +49,16 @@ const ProfileScreen = (props) => {
               icon: "lock-outline",
               color: "#fff",
               onPress: function () {
-                auth.setIsLoggedIn(false);
-                auth.setCurrentUser({});
+                firebase
+                  .auth()
+                  .signOut()
+                  .then(() => {
+                    auth.setIsLoggedIn(false);
+                    auth.setCurrentUser({});
+                  })
+                  .catch((error) => {
+                    alert(error);
+                  });
               },
             }}
           />

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { Input, Button, Card } from "react-native-elements";
 import { FontAwesome, Feather, AntDesign, Ionicons } from "@expo/vector-icons";
-import { storeDataJSON } from "../functions/AsyncStorageFunctions";
+import * as firebase from "firebase";
 
 const SignUpScreen = (props) => {
   const [Name, setName] = useState("");
@@ -50,15 +50,38 @@ const SignUpScreen = (props) => {
           icon={<AntDesign name="user" size={24} color="white" />}
           title="  Sign Up!"
           type="solid"
-          onPress={function () {
-            let currentUser = {
-              name: Name,
-              sid: SID,
-              email: Email,
-              password: Password,
-            };
-            storeDataJSON(Email, currentUser);
-            props.navigation.navigate("SignIn");
+          onPress={() => {
+            if (Name && SID && Email && Password) {
+              firebase
+                .auth()
+                .createUserWithEmailAndPassword(Email, Password)
+                .then((userCreds) => {
+                  userCreds.user.updateProfile({ displayName: Name });
+                  firebase
+                    .database()
+                    .ref()
+                    .child("users/")
+                    .child(userCreds.user.uid)
+                    .set({
+                      name: Name,
+                      sid: SID,
+                      email: Email,
+                    })
+                    .then(() => {
+                      alert("Account created successfully!");
+                      console.log(userCreds.user);
+                      props.navigation.navigate("SignIn");
+                    })
+                    .catch((error) => {
+                      alert(error);
+                    });
+                })
+                .catch((error) => {
+                  alert(error);
+                });
+            } else {
+              alert("Fields can never be empty!");
+            }
           }}
         />
         <Button

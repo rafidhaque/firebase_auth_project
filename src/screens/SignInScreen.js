@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 import { Input, Button, Card } from "react-native-elements";
 import { FontAwesome, Feather, AntDesign } from "@expo/vector-icons";
 import { AuthContext } from "../providers/AuthProvider";
-import { getDataJSON } from "../functions/AsyncStorageFunctions";
+import * as firebase from "firebase";
 
 const SignInScreen = (props) => {
   const [Email, setEmail] = useState("");
@@ -36,15 +36,17 @@ const SignInScreen = (props) => {
               icon={<AntDesign name="login" size={24} color="white" />}
               title="  Sign In!"
               type="solid"
-              onPress={async function () {
-                let UserData = await getDataJSON(Email);
-                if (UserData.password == Password) {
-                  auth.setIsLoggedIn(true);
-                  auth.setCurrentUser(UserData);
-                } else {
-                  alert("Login Failed");
-                  console.log(UserData);
-                }
+              onPress={() => {
+                firebase
+                  .auth()
+                  .signInWithEmailAndPassword(Email, Password)
+                  .then((userCreds) => {
+                    auth.setIsLoggedIn(true);
+                    auth.setCurrentUser(userCreds.user);
+                  })
+                  .catch((error) => {
+                    alert(error);
+                  });
               }}
             />
             <Button
