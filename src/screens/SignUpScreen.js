@@ -3,6 +3,7 @@ import { View, StyleSheet } from "react-native";
 import { Input, Button, Card } from "react-native-elements";
 import { FontAwesome, Feather, AntDesign, Ionicons } from "@expo/vector-icons";
 import * as firebase from "firebase";
+import "firebase/firestore";
 
 const SignUpScreen = (props) => {
   const [Name, setName] = useState("");
@@ -16,7 +17,7 @@ const SignUpScreen = (props) => {
         <Card.Title>Welcome to AuthApp!</Card.Title>
         <Card.Divider />
         <Input
-          leftIcon={<Ionicons name="ios-person" size={24} color="black" />}
+          leftIcon={<Ionicons name="ios-pe rson" size={24} color="black" />}
           placeholder="Name"
           onChangeText={function (currentInput) {
             setName(currentInput);
@@ -58,10 +59,9 @@ const SignUpScreen = (props) => {
                 .then((userCreds) => {
                   userCreds.user.updateProfile({ displayName: Name });
                   firebase
-                    .database()
-                    .ref()
-                    .child("users/")
-                    .child(userCreds.user.uid)
+                    .firestore()
+                    .collection("users")
+                    .doc(userCreds.user.uid)
                     .set({
                       name: Name,
                       sid: SID,
