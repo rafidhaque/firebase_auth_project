@@ -17,114 +17,116 @@ import {
 import PostCard from "./../components/PostCard";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { AuthContext } from "../providers/AuthProvider";
-import { storeData } from "./../functions/AsyncStorageFunctions";
-import { AsyncStorage } from "react-native";
+import * as firebase from "firebase";
+import "firebase/firestore";
 
 const HomeScreen = (props) => {
-  const [posts_list, setPosts_list] = useState([]);
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [post, setPost] = useState("");
+  const [input, setInput] = useState("");
   const [headline, setHeadline] = useState("");
 
-  const getData = async (key) => {
-    var value, collect;
-    try {
-      value = await AsyncStorage.getItem(key).then((values) => {
-        collect = values;
+  const loadPosts = async () => {
+    firebase
+      .firestore()
+      .collection("posts")
+      .orderBy("created_at", "desc")
+      .onSnapshot((querySnapshot) => {
+        let temp_posts = [];
+        querySnapshot.forEach((doc) => {
+          temp_posts.push({
+            id: doc.id,
+            data: doc.data(),
+          });
+        });
+        setPosts(temp_posts);
+      })
+      .catch((error) => {
+        alert(error);
       });
-    } catch (error) {
-      console.log("Error: ", error);
-    }
-    return collect;
   };
 
   useEffect(() => {
-    getData("posts_list").then((filter) => {
-      if (filter != null) {
-        filter = JSON.parse(filter);
-        setPosts_list(filter);
-      } else console.log("error");
-    });
+    loadPosts();
   }, []);
 
-  if (!loading) {
-    return (
-      <AuthContext.Consumer>
-        {(auth) => (
-          <View style={styles.viewStyle}>
-            <Header
-              leftComponent={{
-                icon: "menu",
-                color: "#fff",
-                onPress: function () {
-                  props.navigation.toggleDrawer();
-                },
-              }}
-              centerComponent={{ text: "Our Blog", style: { color: "#fff" } }}
-              rightComponent={{
-                icon: "lock-outline",
-                color: "#fff",
-                onPress: function () {
-                  auth.setIsLoggedIn(false);
-                  auth.setCurrentUser({});
-                },
-              }}
-            />
-            <Card>
-              <Input
-                placeholder="Headline"
-                onChangeText={function (currentText) {
-                  setHeadline(currentText);
-                }}
-              />
-              <Input
-                placeholder="What's On Your Mind?"
-                onChangeText={function (currentText) {
-                  setPost(currentText);
-                }}
-              />
-              <Button
-                title="Post"
-                type="outline"
-                onPress={function () {
-                  let post_details = {
-                    headline: headline,
-                    author: auth.CurrentUser.name,
-                    post: post,
-                    likes: 0,
-                  };
-                  let temp_list = posts_list;
-                  temp_list.push(post_details);
-                  temp_list = JSON.stringify(temp_list);
-                  storeData("posts_list", temp_list);
-                  props.navigation.navigate("Home");
-                }}
-              />
-            </Card>
-            <FlatList
-              data={posts_list.reverse()}
-              renderItem={function ({ item }) {
-                return (
-                  <PostCard
-                    author={item.headline}
-                    title={item.author}
-                    body={item.post}
-                    likes={item.likes}
-                  />
-                );
+  return (
+    <AuthContext.Consumer>
+      {(auth) => (
+        <View style={styles.viewStyle}>
+          <Header
+            leftComponent={{
+              icon: "menu",
+              color: "#fff",
+              onPress: function () {
+                props.navigation.toggleDrawer();
+              },
+            }}
+            centerComponent={{ text: "Our Blog", style: { color: "#fff" } }}
+            rightComponent={{
+              icon: "lock-outline",
+              color: "#fff",
+              onPress: function () {
+                auth.setIsLoggedIn(false);
+                auth.setCurrentUser({});
+              },
+            }}
+          />
+          <Card>
+            <Input
+              placeholder="Headline"
+              onChangeText={function (currentText) {
+                setHeadline(currentText);
               }}
             />
-          </View>
-        )}
-      </AuthContext.Consumer>
-    );
-  } else {
-    return (
-      <View style={{ flex: 1, justifyContent: "center" }}>
-        <ActivityIndicator size="large" color="red" animating={true} />
-      </View>
-    );
-  }
+            <Input
+              placeholder="What's On Your Mind?"
+              onChangeText={function (currentText) {
+                setInput(currentText);
+              }}
+            />
+            <Button
+              title="Post"
+              type="outline"
+              onPress={function () {
+                let post_details = {
+                  headline: headline,
+                  author: auth.CurrentUser.displayName,
+                  post: input,
+                  created_at: firebase.firestore.Timestamp.now(),
+                  likes: [],
+                  comments: [],
+                };
+                firebase
+                  .firestore()
+                  .collection("posts")
+                  .add(post_details)
+                  .then(() => {
+                    alert("Post created successfully!");
+                  })
+                  .catch((error) => {
+                    alert(error);
+                  });
+              }}
+            />
+          </Card>
+          <FlatList
+            data={posts}
+            renderItem={function ({ item }) {
+              return (
+                <PostCard
+                  author={item.data.headline}
+                  title={item.data.author}
+                  body={item.data.post}
+                  likes={item.data.likes}
+                />
+              );
+            }}
+          />
+        </View>
+      )}
+    </AuthContext.Consumer>
+  );
 };
 
 const styles = StyleSheet.create({
